@@ -17,19 +17,21 @@ app.use(cookieParser());
 const allowedOrigins = [
     'http://localhost:5173',
     'http://localhost:3000',
-    process.env.FRONTEND_URL
-].filter(Boolean); // removes undefined/null values
+    'https://cryptapp-demo.netlify.app',  // hardcoded production frontend
+    process.env.FRONTEND_URL              // also read from env var
+].filter(Boolean);
 
 app.use(cors({
     origin: function (origin, callback) {
-        // Allow requests with no origin (like Postman, curl, mobile apps)
+        // Allow requests with no origin (Postman, curl, server-to-server)
         if (!origin) return callback(null, true);
-        if (allowedOrigins.includes(origin)) {
+        // Allow any netlify.app subdomain (covers preview deploys too)
+        if (origin.endsWith('.netlify.app') || allowedOrigins.includes(origin)) {
             return callback(null, true);
         }
         console.log('CORS blocked origin:', origin);
         console.log('Allowed origins:', allowedOrigins);
-        return callback(new Error('CORS: Not allowed by server'));
+        return callback(new Error('Not allowed by CORS'));
     },
     credentials: true
 }));
