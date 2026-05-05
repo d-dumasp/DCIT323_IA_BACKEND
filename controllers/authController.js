@@ -41,8 +41,8 @@ export const registerUser = async (req, res) => {
             const token = generateToken(user._id);
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
-                sameSite: 'strict',
+                secure: true, // always true in production (HTTPS)
+                sameSite: 'none', // required for cross-domain (Netlify <-> Render)
                 maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
             });
 
@@ -50,6 +50,7 @@ export const registerUser = async (req, res) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                token, // also send token in body for localStorage fallback
             });
         } else {
             res.status(400).json({ message: 'Invalid user data' });
@@ -73,8 +74,8 @@ export const loginUser = async (req, res) => {
             const token = generateToken(user._id);
             res.cookie('token', token, {
                 httpOnly: true,
-                secure: process.env.NODE_ENV !== 'development',
-                sameSite: 'strict',
+                secure: true, // always true in production (HTTPS)
+                sameSite: 'none', // required for cross-domain (Netlify <-> Render)
                 maxAge: 30 * 24 * 60 * 60 * 1000,
             });
 
@@ -82,6 +83,7 @@ export const loginUser = async (req, res) => {
                 _id: user.id,
                 name: user.name,
                 email: user.email,
+                token, // also send token in body for localStorage fallback
             });
         } else {
             res.status(401).json({ message: 'Invalid credentials' });
