@@ -19,6 +19,10 @@ app.use(cors({
     credentials: true
 }));
 
+app.get('/', (req, res) => {
+    res.send('Crypto App API is running!');
+});
+
 //Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
