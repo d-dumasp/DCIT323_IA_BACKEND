@@ -14,8 +14,23 @@ const app = express();
 // Middleware
 app.use(express.json());
 app.use(cookieParser());
+const allowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:3000',
+    process.env.FRONTEND_URL
+].filter(Boolean); // removes undefined/null values
+
 app.use(cors({
-    origin: [ 'http://localhost:5173', process.env.FRONTEND_URL ],
+    origin: function (origin, callback) {
+        // Allow requests with no origin (like Postman, curl, mobile apps)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+        console.log('CORS blocked origin:', origin);
+        console.log('Allowed origins:', allowedOrigins);
+        return callback(new Error('CORS: Not allowed by server'));
+    },
     credentials: true
 }));
 
